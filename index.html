@@ -208,12 +208,16 @@ function marquee(track,speed){
   if(track.scrollHeight<=parent.clientHeight+2) return;   // fits → no scroll
   const h=track.scrollHeight;
   track.innerHTML+=track.innerHTML;                        // duplicate for seamless loop
+  if(!parent.dataset.hoverBound){                          // pause saat kursor di atas panel
+    parent.dataset.hoverBound="1";
+    parent.addEventListener("mouseenter",()=>parent.dataset.paused="1");
+    parent.addEventListener("mouseleave",()=>parent.dataset.paused="");
+  }
   let y=0,last=null;
   (function step(t){
     if(my!==GEN) return;                                   // superseded by newer render
     if(last==null)last=t; const dt=(t-last)/1000; last=t;
-    y-=speed*dt; if(-y>=h)y+=h;
-    track.style.transform="translateY("+y+"px)";
+    if(!parent.dataset.paused){ y-=speed*dt; if(-y>=h)y+=h; track.style.transform="translateY("+y+"px)"; }
     requestAnimationFrame(step);
   })(performance.now());
 }
@@ -255,9 +259,9 @@ function render(list){
   }).join("") : `<div class="msg">Semua dokumen dalam masa aman. 🎉</div>`;
 
   // start marquees (each no-ops if its content fits)
-  marquee(document.getElementById("listTrack"),22);
-  marquee(document.getElementById("countryTrack"),16);
-  marquee(document.getElementById("docsTrack"),20);
+  marquee(document.getElementById("listTrack"),12);
+  marquee(document.getElementById("countryTrack"),9);
+  marquee(document.getElementById("docsTrack"),11);
 }
 
 async function load(){
