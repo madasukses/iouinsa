@@ -27,7 +27,7 @@
   .topbar .clock{text-align:right;font-size:15px;color:var(--muted);font-weight:600}
   .topbar .clock b{display:block;font-size:22px;color:var(--ink)}
 
-  .grid{flex:1;display:grid;grid-template-columns:1.35fr .85fr .85fr;grid-template-rows:200px 1fr;
+  .grid{flex:1;display:grid;grid-template-columns:1.35fr .85fr .85fr;grid-template-rows:240px 1fr;
     grid-template-areas:"list total negara" "list docs docs";gap:18px;min-height:0}
   .area-list{grid-area:list} .area-total{grid-area:total} .area-negara{grid-area:negara} .area-docs{grid-area:docs}
 
@@ -54,11 +54,11 @@
     font-weight:700;font-size:16px;padding:4px 10px;border-radius:22px}
 
   /* total */
-  .stat{flex:1;display:flex;flex-direction:column;justify-content:center}
-  .stat .num{font-size:58px;font-weight:800;line-height:.95;letter-spacing:-.04em;color:var(--brand)}
+  .stat{flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0}
+  .stat .num{font-size:54px;font-weight:800;line-height:.95;letter-spacing:-.04em;color:var(--brand)}
   .stat .cap{font-size:14px;color:var(--muted);font-weight:500;margin-top:2px}
-  .stat .sub{margin-top:14px;display:flex;gap:22px;border-top:1px dashed var(--line);padding-top:12px}
-  .stat .sub b{display:block;font-size:24px;color:var(--ink);font-weight:800;line-height:1}
+  .stat .sub{margin-top:12px;display:flex;gap:22px;border-top:1px dashed var(--line);padding-top:12px}
+  .stat .sub b{display:block;font-size:22px;color:var(--ink);font-weight:800;line-height:1}
   .stat .sub span{font-size:13px;color:var(--muted)}
 
   /* countries */
@@ -69,17 +69,12 @@
   .crow .cc{font-size:15px;font-weight:800;color:#fff;background:var(--brand);min-width:34px;text-align:center;padding:2px 9px;border-radius:22px}
 
   /* docs */
-  /* docs — reminder with countdown badge */
-  .drow{display:grid;grid-template-columns:104px 1.5fr auto;gap:10px 20px;align-items:center;padding:16px 8px;border-bottom:1px solid #eef2ef}
-  .cd{display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:13px;padding:9px 6px;line-height:1}
-  .cd b{font-size:32px;font-weight:800;letter-spacing:-.02em}
-  .cd span{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-top:3px}
-  .cd.warn{background:var(--warn-bg);color:var(--warn)}
-  .cd.danger{background:var(--danger-bg);color:var(--danger)}
+  /* docs — reminder pada keterangan */
+  .drow{display:grid;grid-template-columns:1.5fr auto;gap:8px 18px;align-items:center;padding:15px 8px;border-bottom:1px solid #eef2ef}
   .drow .dn{font-weight:600;font-size:21px}
   .drow .dm{font-size:15px;color:var(--muted);margin-top:2px}
   .chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
-  .chip{font-size:15px;font-weight:700;padding:6px 12px;border-radius:10px;display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+  .chip{font-size:16px;font-weight:700;padding:6px 13px;border-radius:10px;display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
   .chip.danger{background:var(--danger-bg);color:var(--danger)}
   .chip.warn{background:var(--warn-bg);color:var(--warn)}
   .chip small{font-weight:600;opacity:.85}
@@ -160,7 +155,7 @@ const NOW=new Date(); NOW.setHours(0,0,0,0);
 const MONTHS={jan:0,feb:1,mar:2,apr:3,may:4,mei:4,jun:5,jul:6,aug:7,agu:8,sep:9,oct:9,okt:9,nov:10,dec:11,des:11};
 function parseDate(v){
   if(v==null) return null; v=String(v).trim(); if(!v) return null;
-  let m=v.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);            if(m)return mk(m[3],m[2],m[1]);
+  let m=v.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})$/);   if(m)return mk(m[3],m[2],m[1]); // YYYY-MM-DD or YYYY/MM/DD
   m=v.match(/^(\d{1,2})[-\/ ]([A-Za-z]{3,})[-\/ ](\d{4})$/); if(m){const mo=MONTHS[m[2].slice(0,3).toLowerCase()];return mo==null?null:mk(m[1],mo+1,m[3]);}
   m=v.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})$/);        if(m)return mk(m[1],m[2],m[3]); // DD-MM-YYYY
   const d=new Date(v); return isNaN(d)?null:(d.setHours(0,0,0,0),d);
@@ -193,7 +188,7 @@ function colIndex(headers){
     semester:find("semester")>=0?find("semester"):find("smt"),
     paspor:find("berlaku","paspor"),
     itas:find("berlaku","itas")>=0?find("berlaku","itas"):find("berlaku","kitas"),
-    stm:find("berlaku","stm"),
+    stm:find("berlaku","stm")>=0?find("berlaku","stm"):find("berlaku","skj"),
     sktt:find("berlaku","sktt"),
     ket:find("keterangan")
   };
@@ -248,16 +243,12 @@ function render(list){
   // docs
   const al=[]; list.forEach(s=>{const f=docFlags(s);if(f.length)al.push({s,f,w:Math.min(...f.map(x=>x.days))});});
   al.sort((a,b)=>a.w-b.w);
-  document.getElementById("docsTrack").innerHTML = al.length? al.map(({s,f,w})=>{
-    const badge = w<0
-      ? `<div class="cd danger"><b>${Math.abs(w)}</b><span>hari lewat</span></div>`
-      : `<div class="cd ${w<=DANGER_DAYS?'danger':'warn'}"><b>${w}</b><span>hari lagi</span></div>`;
+  document.getElementById("docsTrack").innerHTML = al.length? al.map(({s,f})=>{
     const chips = f.sort((a,b)=>a.days-b.days).map(x=>{
-      const t = x.days<0 ? "kedaluwarsa" : x.days===0 ? "hari ini" : "kurang "+x.days+" hari";
-      return `<span class="chip ${x.level}">${x.label}<small>· ${t}</small></span>`;
+      const t = x.days<0 ? "kedaluwarsa" : x.days===0 ? "jatuh tempo hari ini" : "kurang "+x.days+" hari";
+      return `<span class="chip ${x.level}">${x.label} <small>${t}</small></span>`;
     }).join("");
     return `<div class="drow">
-      ${badge}
       <div><div class="dn">${flag(s.cc)} ${s.nama}</div><div class="dm">${s.negara||"-"} · ${s.prodi||"-"} · Smt ${s.semester||"–"}</div></div>
       <div class="chips">${chips}</div>
     </div>`;
