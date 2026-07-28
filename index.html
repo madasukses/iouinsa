@@ -163,6 +163,17 @@ function parseDate(v){
 function mk(d,mo,y){const dt=new Date(+y,+mo-1,+d);dt.setHours(0,0,0,0);return isNaN(dt)?null:dt;}
 function daysUntil(dt){ return dt==null?null:Math.round((dt-NOW)/86400000); }
 
+/* Semester otomatis dari Tahun Masuk (asumsi masuk semester ganjil/Agustus).
+   Ganjil: Agu–Jan  ·  Genap: Feb–Jul */
+function semesterOtomatis(th){
+  th=parseInt(th,10); if(!th) return null;
+  const y=NOW.getFullYear(), m=NOW.getMonth()+1;
+  const ayStart = (m>=8)? y : y-1;            // tahun ajaran yang sedang berjalan
+  let sem=(ayStart-th)*2+1;                    // semester ganjil TA berjalan
+  if(m>=2 && m<=7) sem+=1;                     // bila sedang di paruh genap
+  return sem<1?1:sem;
+}
+
 /* ---- robust CSV parser (handles quotes & commas) ---- */
 function parseCSV(text){
   const rows=[]; let row=[],f="",q=false;
@@ -186,6 +197,7 @@ function colIndex(headers){
     jenjang:find("jenjang"),
     fak:find("fak"),
     semester:find("semester")>=0?find("semester"):find("smt"),
+    tahun:find("tahun"),
     paspor:find("berlaku","paspor"),
     itas:find("berlaku","itas")>=0?find("berlaku","itas"):find("berlaku","kitas"),
     stm:find("berlaku","stm")>=0?find("berlaku","stm"):find("berlaku","skj"),
@@ -288,7 +300,8 @@ async function load(){
         nama:get(r,"nama"), negara,
         cc:get(r,"cc")||NAME2CC[negara]||"",
         prodi:get(r,"prodi"), jenjang:get(r,"jenjang"), fak:get(r,"fak"),
-        semester:get(r,"semester"), ket:get(r,"ket"),
+        semester: semesterOtomatis(get(r,"tahun")) ?? get(r,"semester"),
+        ket:get(r,"ket"),
         paspor:parseDate(get(r,"paspor")), itas:parseDate(get(r,"itas")),
         stm:parseDate(get(r,"stm")), sktt:parseDate(get(r,"sktt"))
       };
