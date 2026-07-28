@@ -62,6 +62,8 @@
   .lrow .pr{color:var(--muted);font-size:16px;line-height:1.25}
   .lrow .pr small{display:block;font-size:13px;opacity:.85}
   .flag{font-size:22px;line-height:1}
+  .flg{height:1em;width:auto;border-radius:3px;vertical-align:-0.15em;box-shadow:0 0 0 1px rgba(0,0,0,.10)}
+  .flg-x{display:inline-block;height:1em;width:1.35em;border-radius:3px;background:var(--line);vertical-align:-0.15em}
   .sem{display:inline-block;min-width:34px;text-align:center;background:var(--brand-soft);color:var(--brand);
     font-weight:700;font-size:16px;padding:4px 10px;border-radius:22px}
 
@@ -165,7 +167,12 @@ const NAME2CC = {Thailand:"TH",Malaysia:"MY",Turki:"TR","Turkiye":"TR",Gambia:"G
  "Timor Leste":"TL","Timor-Leste":"TL",Pakistan:"PK",Nigeria:"NG",Libya:"LY",Somalia:"SO",
  Yordania:"JO",Jordan:"JO",Sudan:"SD",Mesir:"EG",Maroko:"MA",Bangladesh:"BD"};
 
-function flag(cc){ if(!cc)return"🏳️"; return cc.toUpperCase().replace(/[^A-Z]/g,"").slice(0,2).replace(/./g,c=>String.fromCodePoint(127397+c.charCodeAt(0))); }
+function flag(cc){
+  cc=(cc||"").toUpperCase().replace(/[^A-Z]/g,"").slice(0,2);
+  if(cc.length!==2) return `<span class="flg flg-x"></span>`;
+  return `<img class="flg" src="https://flagcdn.com/w80/${cc.toLowerCase()}.png" alt="${cc}" loading="lazy" `+
+         `onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'flg flg-x'}))">`;
+}
 const NOW=new Date(); NOW.setHours(0,0,0,0);
 const MONTHS={jan:0,feb:1,mar:2,apr:3,may:4,mei:4,jun:5,jul:6,aug:7,agu:8,sep:9,oct:9,okt:9,nov:10,dec:11,des:11};
 function parseDate(v){
