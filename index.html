@@ -39,6 +39,44 @@
     box-shadow:0 4px 12px rgba(15,40,32,.06);transition:background-color .3s,border-color .3s}
   .tbtn:hover{border-color:var(--brand)}
 
+  /* ---- tabs ---- */
+  .tabs{display:flex;gap:10px;margin-bottom:18px;flex:none}
+  .tab{padding:11px 26px;border-radius:12px;font-size:18px;font-weight:700;cursor:pointer;
+    color:var(--muted);background:var(--surface);border:1px solid var(--line);transition:.2s}
+  .tab:hover{border-color:var(--brand)}
+  .tab.active{background:var(--brand);color:var(--on-brand);border-color:var(--brand)}
+
+  .view{flex:1;min-height:0;display:none}
+  .view.active{display:flex;flex-direction:column}
+
+  /* ---- kerjasama: 6 big stat boxes ---- */
+  .kstats{display:grid;grid-template-columns:repeat(6,1fr);gap:16px;margin-bottom:18px;flex:none}
+  .kbox{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px 20px 18px;
+    display:flex;flex-direction:column;justify-content:center;box-shadow:0 6px 20px rgba(15,40,32,.06);
+    transition:background-color .3s,border-color .3s}
+  .kbox b{font-size:52px;font-weight:800;line-height:1;letter-spacing:-.03em;color:var(--brand)}
+  .kbox span{font-size:15px;color:var(--muted);font-weight:600;margin-top:8px}
+  .kbox.ok b{color:var(--ok)} .kbox.danger b{color:var(--danger)}
+
+  .kcard{flex:1;min-height:0}
+  .khead,.krow{display:grid;grid-template-columns:2.3fr 2fr .9fr 1.4fr 1.2fr 1.1fr;gap:14px;align-items:center}
+  .khead{padding:0 12px 10px;border-bottom:2px solid var(--line);font-size:13px;font-weight:700;
+    text-transform:uppercase;letter-spacing:.05em;color:var(--muted);flex:none}
+  .krow{padding:13px 12px;border-bottom:1px solid var(--line-soft);font-size:18px}
+  .krow .knm{font-weight:600;display:flex;align-items:center;gap:10px}
+  .krow .knm small{display:block;font-size:13px;color:var(--muted);font-weight:500}
+  .krow .ku{color:var(--muted);font-size:16px}
+  .jbadge{display:inline-block;font-size:14px;font-weight:700;padding:4px 11px;border-radius:8px;
+    background:var(--brand-soft);color:var(--brand)}
+  .kper{font-size:15px;color:var(--muted)}
+  .kcd{display:inline-block;font-size:15px;font-weight:700;padding:5px 12px;border-radius:9px;
+    background:var(--band);color:var(--ink)}
+  .kcd.warn{background:var(--warn-bg);color:var(--warn)}
+  .kcd.danger{background:var(--danger-bg);color:var(--danger)}
+  .stbadge{display:inline-block;font-size:14px;font-weight:700;padding:5px 12px;border-radius:9px}
+  .stbadge.on{background:var(--brand-soft);color:var(--brand)}
+  .stbadge.off{background:var(--band);color:var(--muted)}
+
   .grid{flex:1;display:grid;grid-template-columns:1.35fr .85fr .85fr;grid-template-rows:240px 1fr;
     grid-template-areas:"list total negara" "list docs docs";gap:18px;min-height:0}
   .area-list{grid-area:list} .area-total{grid-area:total} .area-negara{grid-area:negara} .area-docs{grid-area:docs}
@@ -105,7 +143,7 @@
     <div class="topbar">
       <div>
         <h1>Data Mahasiswa Internasional · <span>International Office UINSA</span></h1>
-        <div class="subline">Monitoring mahasiswa asing & masa berlaku dokumen keimigrasian — Paspor · ITAS · STM · SKTT</div>
+        <div class="subline" id="subline">Monitoring mahasiswa asing & masa berlaku dokumen keimigrasian — Paspor · ITAS · STM · SKTT</div>
       </div>
       <div class="topright">
         <div class="clock"><b id="clock">–</b><span id="today">–</span></div>
@@ -113,6 +151,12 @@
       </div>
     </div>
 
+    <div class="tabs">
+      <div class="tab active" data-view="mhs">Data Mahasiswa</div>
+      <div class="tab" data-view="krj">Kerjasama</div>
+    </div>
+
+    <div class="view active" id="viewMahasiswa">
     <div class="grid">
       <section class="card area-list">
         <div class="card-head"><h2>Daftar Mahasiswa</h2><span class="subline" id="listCount"></span></div>
@@ -148,6 +192,24 @@
         <div class="scroll"><div class="track" id="docsTrack"></div></div>
       </section>
     </div>
+    </div><!-- /view mahasiswa -->
+
+    <div class="view" id="viewKerjasama">
+      <div class="kstats">
+        <div class="kbox"><b id="kTotal">–</b><span>Total Mitra</span></div>
+        <div class="kbox ok"><b id="kOngoing">–</b><span>On Going</span></div>
+        <div class="kbox danger"><b id="kEnded">–</b><span>Berakhir</span></div>
+        <div class="kbox"><b id="kMou">–</b><span>Dokumen MoU</span></div>
+        <div class="kbox"><b id="kMoa">–</b><span>Dokumen MoA</span></div>
+        <div class="kbox"><b id="kLoi">–</b><span>Dokumen LoI</span></div>
+      </div>
+      <section class="card kcard">
+        <div class="card-head"><h2>Daftar Kerjasama</h2><span class="subline" id="kCount"></span></div>
+        <div class="khead"><div>Kampus / Mitra</div><div>Unit / Fakultas</div><div>Jenis</div><div>Berakhir</div><div>Masa Berlaku</div><div>Status</div></div>
+        <div class="scroll"><div class="track" id="krjTrack"><div class="msg">Memuat data…</div></div></div>
+      </section>
+    </div>
+
   </div>
 
 <script>
@@ -159,13 +221,26 @@
    ======================================================================= */
 const SHEET_ID   = "1Pgrl3b464MYiRZfjQngvuM3r7i7XqklhDHZgHYslhAc";
 const SHEET_NAME = "data_mahasiswa";
+const SHEET_KERJASAMA = "Data_Kerjasama";
 const REFRESH_MINUTES = 10;   // ambil ulang data tiap sekian menit
 /* ======================================================================= */
 
 const WARN_DAYS = 90, DANGER_DAYS = 30;
-const NAME2CC = {Thailand:"TH",Malaysia:"MY",Turki:"TR","Turkiye":"TR",Gambia:"GM",Afghanistan:"AF",
+const NAME2CC = {Thailand:"TH",Malaysia:"MY",Turki:"TR",Turkiye:"TR",Gambia:"GM",Afghanistan:"AF",
  "Timor Leste":"TL","Timor-Leste":"TL",Pakistan:"PK",Nigeria:"NG",Libya:"LY",Somalia:"SO",
- Yordania:"JO",Jordan:"JO",Sudan:"SD",Mesir:"EG",Maroko:"MA",Bangladesh:"BD"};
+ Yordania:"JO",Jordan:"JO",Sudan:"SD",Mesir:"EG",Maroko:"MA",Bangladesh:"BD",
+ Singapura:"SG",Filipina:"PH",Vietnam:"VN",Brunei:"BN",Kamboja:"KH",Laos:"LA",Myanmar:"MM",
+ Jepang:"JP",Japan:"JP","Korea Selatan":"KR",Korea:"KR",Tiongkok:"CN",China:"CN",Cina:"CN",Taiwan:"TW",Hongkong:"HK","Hong Kong":"HK",
+ India:"IN",Australia:"AU","Selandia Baru":"NZ",
+ "Amerika Serikat":"US",Amerika:"US",Kanada:"CA","Inggris":"GB","Britania Raya":"GB",Jerman:"DE",Prancis:"FR",Perancis:"FR",
+ Belanda:"NL",Italia:"IT",Spanyol:"ES",Rusia:"RU","Arab Saudi":"SA","Uni Emirat Arab":"AE",Qatar:"QA",Kuwait:"KW",Oman:"OM",
+ Iran:"IR",Irak:"IQ",Yaman:"YE",Palestina:"PS",Brasil:"BR",Brazil:"BR"};
+function ccOf(name){
+  if(!name) return "";
+  const t=String(name).trim().toLowerCase();
+  const k=Object.keys(NAME2CC).find(x=>x.toLowerCase()===t);
+  return k?NAME2CC[k]:"";
+}
 
 function flag(cc){
   cc=(cc||"").toUpperCase().replace(/[^A-Z]/g,"").slice(0,2);
@@ -236,6 +311,7 @@ function docFlags(s){
 
 /* ---------- marquee: seamless upward auto-scroll when overflowing ---------- */
 let GEN=0;
+let dataMhs=[], dataKrj=[], currentView="mhs";
 function marquee(track,speed){
   const my=GEN, parent=track.parentElement;
   track.style.transform="translateY(0)";
@@ -256,7 +332,7 @@ function marquee(track,speed){
   })(performance.now());
 }
 
-function render(list){
+function renderMhs(list){
   GEN++;
   // total
   document.getElementById("tActive").textContent=list.length;
@@ -298,7 +374,7 @@ function render(list){
   marquee(document.getElementById("docsTrack"),11);
 }
 
-async function load(){
+async function loadMhs(){
   if(SHEET_ID.startsWith("GANTI")){
     document.getElementById("listTrack").innerHTML=`<div class="msg err">Isi <b>SHEET_ID</b> di index.html dulu (lihat README).</div>`;
     return;
@@ -328,11 +404,105 @@ async function load(){
         stm:parseDate(get(r,"stm")), sktt:parseDate(get(r,"sktt"))
       };
     }).filter(s=>s.nama);
-    render(list);
+    dataMhs=list;
+    if(currentView==="mhs") renderMhs(list);
   }catch(e){
     document.getElementById("listTrack").innerHTML=`<div class="msg err">Gagal memuat data (${e.message}).<br>Cek SHEET_ID, nama tab, dan setelan share spreadsheet.</div>`;
   }
 }
+
+/* =================== KERJASAMA =================== */
+function colIndexKrj(headers){
+  const h=headers.map(x=>x.toLowerCase());
+  const find=(...kw)=>h.findIndex(x=>kw.every(k=>x.includes(k)));
+  return {
+    kampus: find("kampus")>=0?find("kampus"):find("mitra")>=0?find("mitra"):find("nama")>=0?find("nama"):find("instansi"),
+    unit:   find("unit")>=0?find("unit"):find("fak"),
+    negara: find("negara"),
+    mulai:  find("mulai")>=0?find("mulai"):find("awal"),
+    berakhir:find("berakhir")>=0?find("berakhir"):find("akhir")>=0?find("akhir"):find("selesai"),
+    jenis:  find("jenis")>=0?find("jenis"):find("dokumen"),
+    status: find("status")
+  };
+}
+function isActiveKrj(it){
+  const st=(it.status||"").toLowerCase();
+  if(st) return (st.includes("aktif")&&!st.includes("non")) || st.includes("going") || st.includes("active");
+  const d=daysUntil(it.berakhir); return d==null || d>0;
+}
+const fmtTgl=d=> d? d.toLocaleDateString("id-ID",{day:"2-digit",month:"short",year:"numeric"}) : "–";
+
+function renderKrj(list){
+  GEN++;
+  const jenisIs=(it,k)=>String(it.jenis||"").toUpperCase().replace(/[^A-Z]/g,"").includes(k);
+  const ongoing=list.filter(isActiveKrj).length;
+  document.getElementById("kTotal").textContent=list.length;
+  document.getElementById("kOngoing").textContent=ongoing;
+  document.getElementById("kEnded").textContent=list.length-ongoing;
+  document.getElementById("kMou").textContent=list.filter(it=>jenisIs(it,"MOU")).length;
+  document.getElementById("kMoa").textContent=list.filter(it=>jenisIs(it,"MOA")).length;
+  document.getElementById("kLoi").textContent=list.filter(it=>jenisIs(it,"LOI")).length;
+  document.getElementById("kCount").textContent=list.length+" mitra";
+
+  // urut: yang paling dekat berakhir & masih aktif di atas
+  const sorted=[...list].sort((a,b)=>{
+    const da=daysUntil(a.berakhir), db=daysUntil(b.berakhir);
+    if(da==null) return 1; if(db==null) return -1; return da-db;
+  });
+  document.getElementById("krjTrack").innerHTML = sorted.length? sorted.map(it=>{
+    const d=daysUntil(it.berakhir);
+    let cd;
+    if(d==null) cd=`<span class="kcd">–</span>`;
+    else if(d<=0) cd=`<span class="kcd danger">Berakhir</span>`;
+    else cd=`<span class="kcd ${d<=30?'danger':d<=90?'warn':''}">${d} hari lagi</span>`;
+    const act=isActiveKrj(it);
+    const stTxt=it.status || (act?"Aktif":"Non-aktif");
+    return `<div class="krow">
+      <div class="knm">${flag(it.cc)}<div>${it.kampus||"-"}<small>${it.negara||""}</small></div></div>
+      <div class="ku">${it.unit||"-"}</div>
+      <div><span class="jbadge">${it.jenis||"-"}</span></div>
+      <div class="kper">${fmtTgl(it.berakhir)}</div>
+      <div>${cd}</div>
+      <div><span class="stbadge ${act?'on':'off'}">${stTxt}</span></div>
+    </div>`;
+  }).join("") : `<div class="msg">Belum ada data kerjasama.</div>`;
+
+  marquee(document.getElementById("krjTrack"),11);
+}
+
+async function loadKrj(){
+  if(SHEET_ID.startsWith("GANTI")) return;
+  const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_KERJASAMA)}`;
+  try{
+    const res=await fetch(url); if(!res.ok) throw new Error(res.status);
+    const rows=parseCSV(await res.text()); if(rows.length<2) throw new Error("kosong");
+    const idx=colIndexKrj(rows[0]);
+    const get=(r,k)=> idx[k]>=0 ? (r[idx[k]]||"").trim() : "";
+    const list=rows.slice(1).map(r=>{
+      const negara=get(r,"negara");
+      return { kampus:get(r,"kampus"), unit:get(r,"unit"), negara, cc:ccOf(negara),
+        mulai:parseDate(get(r,"mulai")), berakhir:parseDate(get(r,"berakhir")),
+        jenis:get(r,"jenis"), status:get(r,"status") };
+    }).filter(x=>x.kampus);
+    dataKrj=list;
+    if(currentView==="krj") renderKrj(list);
+  }catch(e){
+    document.getElementById("krjTrack").innerHTML=`<div class="msg err">Gagal memuat Data_Kerjasama (${e.message}).<br>Cek nama tab & share spreadsheet.</div>`;
+  }
+}
+
+/* ---- tab switching ---- */
+function showView(v){
+  currentView=v;
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.dataset.view===v));
+  document.getElementById("viewMahasiswa").classList.toggle("active",v==="mhs");
+  document.getElementById("viewKerjasama").classList.toggle("active",v==="krj");
+  document.getElementById("subline").textContent = v==="mhs"
+    ? "Monitoring mahasiswa asing & masa berlaku dokumen keimigrasian — Paspor · ITAS · STM · SKTT"
+    : "Monitoring kerjasama & masa berlaku dokumen kemitraan — MoU · MoA · LoI";
+  if(v==="mhs") renderMhs(dataMhs); else renderKrj(dataKrj);
+}
+document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>showView(t.dataset.view)));
 
 /* ---- tema terang/gelap ---- */
 const stage=document.getElementById("stage");
@@ -358,7 +528,8 @@ function tick(){
   document.getElementById("today").textContent=d.toLocaleDateString("id-ID",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
 }
 addEventListener("resize",fit); fit(); tick(); setInterval(tick,1000);
-load(); setInterval(load, REFRESH_MINUTES*60000);
+loadMhs(); loadKrj();
+setInterval(()=>{ loadMhs(); loadKrj(); }, REFRESH_MINUTES*60000);
 </script>
 </body>
 </html>
