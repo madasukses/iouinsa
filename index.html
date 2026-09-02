@@ -77,6 +77,72 @@
   .stbadge.on{background:var(--brand-soft);color:var(--brand)}
   .stbadge.off{background:var(--band);color:var(--muted)}
 
+  /* ---- popup pengingat kegiatan ---- */
+  #popupOverlay{position:fixed;inset:0;background:rgba(10,20,16,.55);display:none;
+    align-items:center;justify-content:center;z-index:50;backdrop-filter:blur(2px)}
+  #popupOverlay.show{display:flex}
+  .popup{background:var(--surface);border-radius:22px;padding:34px 38px;width:620px;max-width:88vw;
+    max-height:80vh;overflow:auto;box-shadow:0 24px 60px rgba(0,0,0,.35);border:1px solid var(--line);
+    animation:popIn .25s ease-out}
+  @keyframes popIn{from{transform:scale(.94);opacity:0}to{transform:scale(1);opacity:1}}
+  .popup .phead{display:flex;align-items:flex-start;gap:14px;margin-bottom:6px}
+  .popup .pico{font-size:34px;line-height:1}
+  .popup h3{font-size:23px;font-weight:800;letter-spacing:-.01em}
+  .popup .psub{font-size:14px;color:var(--muted);margin-top:3px}
+  .popup .plist{margin-top:18px;display:flex;flex-direction:column;gap:12px}
+  .pitem{background:var(--brand-soft);border-radius:14px;padding:14px 16px}
+  .pitem .pd{font-size:13px;font-weight:700;color:var(--brand);text-transform:uppercase;letter-spacing:.04em}
+  .pitem .pt{font-size:18px;font-weight:700;margin-top:3px}
+  .pitem .pk{font-size:14px;color:var(--muted);margin-top:3px}
+  .pclose{margin-top:22px;width:100%;padding:13px;border:none;border-radius:12px;background:var(--brand);
+    color:var(--on-brand);font-size:16px;font-weight:700;cursor:pointer}
+  .pclose:hover{opacity:.92}
+
+  /* ---- kamar mahad: grid kartu kamar ---- */
+  .kmstats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:18px;flex:none}
+  .kmcard{flex:1;min-height:0}
+  .kmgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;align-content:start}
+  .room{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 18px;
+    box-shadow:0 6px 18px rgba(15,40,32,.06);transition:background-color .3s,border-color .3s}
+  .room .rhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .room .rname{font-size:19px;font-weight:800;letter-spacing:-.01em}
+  .room .rcap{font-size:13px;font-weight:700;padding:3px 10px;border-radius:20px;background:var(--brand-soft);color:var(--brand)}
+  .room .rcap.full{background:var(--band);color:var(--muted)}
+  .room .rcap.over{background:var(--danger-bg);color:var(--danger)}
+  .room .rlist{display:flex;flex-direction:column;gap:7px}
+  .room .rperson{display:flex;align-items:center;gap:9px;font-size:16px;font-weight:600}
+  .room .rperson .rno{width:20px;font-size:13px;color:var(--muted);font-weight:700}
+  .room .rempty{font-size:14px;color:var(--muted);font-style:italic;padding:4px 0}
+
+  .pbtn{margin-left:auto;padding:9px 16px;border-radius:10px;border:1px solid var(--line);
+    background:var(--surface);color:var(--ink);font-size:14px;font-weight:700;cursor:pointer;transition:.2s}
+  .pbtn:hover{border-color:var(--brand);color:var(--brand)}
+
+  /* ---- area cetak (A4) — tersembunyi di layar, tampil hanya saat print ---- */
+  #printRoot{display:none}
+
+  @media print{
+    html,body{height:auto;overflow:visible;background:#fff}
+    #stage,#popupOverlay,.pbtn{display:none !important}
+    #printRoot{display:block !important}
+    @page{ size:A4 portrait; margin:14mm; }
+
+    #printRoot{color:#111;font-family:'Plus Jakarta Sans',system-ui,sans-serif}
+    .p-head{margin-bottom:14mm;border-bottom:2px solid #0F5F52;padding-bottom:8mm}
+    .p-head h1{font-size:20pt;font-weight:800;color:#0F5F52}
+    .p-head .p-sub{font-size:10pt;color:#555;margin-top:3mm}
+
+    #kmPrintArea .pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6mm}
+    #kmPrintArea .proom{border:1.2pt solid #0F5F52;border-radius:3mm;padding:4mm 5mm;break-inside:avoid;page-break-inside:avoid}
+    #kmPrintArea .prhead{display:flex;justify-content:space-between;align-items:center;
+      border-bottom:1pt solid #ccc;padding-bottom:2mm;margin-bottom:3mm}
+    #kmPrintArea .prname{font-size:12.5pt;font-weight:800;color:#0F5F52}
+    #kmPrintArea .prcap{font-size:9pt;font-weight:700;color:#555}
+    #kmPrintArea .prperson{font-size:11pt;padding:1.6mm 0;border-bottom:0.5pt dotted #ccc}
+    #kmPrintArea .prperson:last-child{border-bottom:none}
+    #kmPrintArea .prempty{font-size:10pt;color:#999;font-style:italic;padding:1.6mm 0}
+  }
+
   .grid{flex:1;display:grid;grid-template-columns:1.35fr .85fr .85fr;grid-template-rows:240px 1fr;
     grid-template-areas:"list total negara" "list docs docs";gap:18px;min-height:0}
   .area-list{grid-area:list} .area-total{grid-area:total} .area-negara{grid-area:negara} .area-docs{grid-area:docs}
@@ -154,6 +220,7 @@
     <div class="tabs">
       <div class="tab active" data-view="mhs">Data Mahasiswa</div>
       <div class="tab" data-view="krj">Kerjasama</div>
+      <div class="tab" data-view="kmr">Pembagian Kamar</div>
     </div>
 
     <div class="view active" id="viewMahasiswa">
@@ -210,6 +277,43 @@
       </section>
     </div>
 
+    <div class="view" id="viewKamar">
+      <div class="kmstats">
+        <div class="kbox"><b id="kmTotal">–</b><span>Total Anak</span></div>
+        <div class="kbox ok"><b id="kmKamar">–</b><span>Jumlah Kamar</span></div>
+        <div class="kbox"><b id="kmAvg">–</b><span>Rata-rata / Kamar</span></div>
+        <div class="kbox danger"><b id="kmFull">–</b><span>Kamar Penuh (4/4)</span></div>
+      </div>
+      <section class="card kmcard">
+        <div class="card-head"><h2>Pembagian Kamar Mahad</h2><span class="subline" id="kmCount"></span>
+          <button id="printKamarBtn" class="pbtn">🖨️ Cetak / PDF</button>
+        </div>
+        <div class="scroll"><div class="track" id="kmTrack"><div class="msg">Memuat data…</div></div></div>
+      </section>
+    </div>
+
+  </div>
+
+  <div id="printRoot">
+    <div class="p-head">
+      <h1>Pembagian Kamar Mahad</h1>
+      <div class="p-sub">International Office UINSA · dicetak <span id="printDate"></span></div>
+    </div>
+    <div id="kmPrintArea"></div>
+  </div>
+
+  <div id="popupOverlay">
+    <div class="popup">
+      <div class="phead">
+        <div class="pico">🔔</div>
+        <div>
+          <h3 id="popupTitle">Pengingat Kegiatan</h3>
+          <div class="psub" id="popupSub"></div>
+        </div>
+      </div>
+      <div class="plist" id="popupList"></div>
+      <button class="pclose" id="popupClose">Tutup</button>
+    </div>
   </div>
 
 <script>
@@ -222,6 +326,10 @@
 const SHEET_ID   = "1Pgrl3b464MYiRZfjQngvuM3r7i7XqklhDHZgHYslhAc";
 const SHEET_NAME = "data_mahasiswa";
 const SHEET_KERJASAMA = "Data_Kerjasama";
+const SHEET_AGENDA = "Agenda";        // tab agenda/kegiatan (kolom: Tanggal, Kegiatan, Keterangan)
+const POPUP_H_MULAI = 1;              // tampilkan pop-up jika kegiatan H-1 (besok) atau lebih dekat
+const SHEET_KAMAR = "KamarMahad";     // tab pembagian kamar (kolom: Kamar, Nama, [Negara])
+const KAPASITAS_KAMAR = 4;
 const REFRESH_MINUTES = 10;   // ambil ulang data tiap sekian menit
 /* ======================================================================= */
 
@@ -311,7 +419,7 @@ function docFlags(s){
 
 /* ---------- marquee: seamless upward auto-scroll when overflowing ---------- */
 let GEN=0;
-let dataMhs=[], dataKrj=[], currentView="mhs";
+let dataMhs=[], dataKrj=[], dataKamar={}, currentView="mhs";
 function marquee(track,speed){
   const my=GEN, parent=track.parentElement;
   track.style.transform="translateY(0)";
@@ -491,16 +599,163 @@ async function loadKrj(){
   }
 }
 
+/* =================== AGENDA / POP-UP PENGINGAT =================== */
+function colIndexAgenda(headers){
+  const h=headers.map(x=>x.toLowerCase());
+  const find=(...kw)=>h.findIndex(x=>kw.every(k=>x.includes(k)));
+  return {
+    tanggal: find("tanggal")>=0?find("tanggal"):find("hari"),
+    kegiatan: find("kegiatan")>=0?find("kegiatan"):find("acara")>=0?find("acara"):find("judul"),
+    ket: find("keterangan")>=0?find("keterangan"):find("lokasi")>=0?find("lokasi"):find("catatan")
+  };
+}
+function fmtTglLong(d){ return d? d.toLocaleDateString("id-ID",{weekday:"long",day:"numeric",month:"long",year:"numeric"}) : ""; }
+
+async function loadAgenda(){
+  if(SHEET_ID.startsWith("GANTI")) return;
+  const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_AGENDA)}`;
+  try{
+    const res=await fetch(url); if(!res.ok) throw new Error(res.status);
+    const rows=parseCSV(await res.text()); if(rows.length<2) return;
+    const idx=colIndexAgenda(rows[0]);
+    if(idx.tanggal<0||idx.kegiatan<0) return;
+    const get=(r,k)=> idx[k]>=0 ? (r[idx[k]]||"").trim() : "";
+    const items=rows.slice(1).map(r=>({
+      tgl:parseDate(get(r,"tanggal")), kegiatan:get(r,"kegiatan"), ket:get(r,"ket")
+    })).filter(x=>x.tgl && x.kegiatan);
+
+    const due=items.filter(x=>{ const d=daysUntil(x.tgl); return d!==null && d>=0 && d<=POPUP_H_MULAI; })
+                    .sort((a,b)=>a.tgl-b.tgl);
+    if(!due.length) return;
+
+    const key="io_agenda_dismiss_"+NOW.toISOString().slice(0,10);
+    let dismissed=[]; try{dismissed=JSON.parse(localStorage.getItem(key)||"[]");}catch(e){}
+    const label=x=>x.tgl.toISOString().slice(0,10)+"|"+x.kegiatan;
+    const toShow=due.filter(x=>!dismissed.includes(label(x)));
+    if(toShow.length) showPopup(toShow,key,due.map(label));
+  }catch(e){ /* diam saja bila tab Agenda belum ada / gagal — bukan fitur wajib */ }
+}
+
+function showPopup(items,dismissKey,allLabels){
+  const overlay=document.getElementById("popupOverlay");
+  const anyTomorrow=items.some(x=>daysUntil(x.tgl)===1);
+  document.getElementById("popupSub").textContent = anyTomorrow ? "Ada kegiatan dalam waktu dekat:" : "Kegiatan hari ini:";
+  document.getElementById("popupList").innerHTML = items.map(x=>{
+    const d=daysUntil(x.tgl);
+    const tag = d===0 ? "Hari ini" : d===1 ? "Besok" : fmtTglLong(x.tgl);
+    return `<div class="pitem">
+      <div class="pd">${tag} · ${fmtTglLong(x.tgl)}</div>
+      <div class="pt">${x.kegiatan}</div>
+      ${x.ket?`<div class="pk">${x.ket}</div>`:""}
+    </div>`;
+  }).join("");
+  overlay.classList.add("show");
+  document.getElementById("popupClose").onclick=()=>{
+    overlay.classList.remove("show");
+    try{localStorage.setItem(dismissKey, JSON.stringify(allLabels));}catch(e){}
+  };
+}
+
+/* =================== PEMBAGIAN KAMAR =====================
+   Format sheet KamarMahad: baris 1 = judul kamar (per kolom,
+   mis. "Kamar 1","Kamar 2",...). Baris berikutnya = nama anak
+   di kamar itu (maks KAPASITAS_KAMAR baris terisi per kolom). */
+function naturalSort(a,b){
+  return a.localeCompare(b,"id",{numeric:true,sensitivity:"base"});
+}
+function roomCardHTML(n,occ){
+  const capClass = occ.length>KAPASITAS_KAMAR ? "over" : occ.length>=KAPASITAS_KAMAR ? "full" : "";
+  const rows=occ.map((nm,i)=>`<div class="rperson"><span class="rno">${i+1}.</span>${nm}</div>`).join("");
+  const empty = Array.from({length:Math.max(0,KAPASITAS_KAMAR-occ.length)})
+    .map(()=>`<div class="rempty">— kosong —</div>`).join("");
+  return `<div class="room">
+    <div class="rhead"><span class="rname">${n}</span><span class="rcap ${capClass}">${occ.length}/${KAPASITAS_KAMAR}</span></div>
+    <div class="rlist">${rows}${empty}</div>
+  </div>`;
+}
+function renderKamar(rooms){
+  GEN++;
+  const names=Object.keys(rooms);
+  const total=names.reduce((s,n)=>s+rooms[n].length,0);
+
+  document.getElementById("kmTotal").textContent=total;
+  document.getElementById("kmKamar").textContent=names.length;
+  document.getElementById("kmAvg").textContent = names.length? (total/names.length).toFixed(1) : "0";
+  document.getElementById("kmFull").textContent = names.filter(n=>rooms[n].length>=KAPASITAS_KAMAR).length;
+  document.getElementById("kmCount").textContent = names.length+" kamar · "+total+" anak";
+
+  document.getElementById("kmTrack").innerHTML = names.length
+    ? `<div class="kmgrid">`+names.map(n=>roomCardHTML(n,rooms[n])).join("")+`</div>`
+    : `<div class="msg">Belum ada data kamar.</div>`;
+
+  marquee(document.getElementById("kmTrack"),10);
+}
+
+/* HTML cetak A4 — dibangun terpisah dari kmTrack agar tidak ikut
+   terduplikasi oleh marquee(), dan selalu sinkron meski tab Kamar
+   sedang tidak aktif. */
+function buildPrintArea(rooms){
+  const names=Object.keys(rooms);
+  const area=document.getElementById("kmPrintArea");
+  if(!names.length){ area.innerHTML=`<p>Belum ada data kamar.</p>`; return; }
+  area.innerHTML = `<div class="pgrid">` + names.map(n=>{
+    const occ=rooms[n];
+    const rows=occ.map((nm,i)=>`<div class="prperson">${i+1}. ${nm}</div>`).join("");
+    const empty=Array.from({length:Math.max(0,KAPASITAS_KAMAR-occ.length)})
+      .map(()=>`<div class="prempty">— kosong —</div>`).join("");
+    return `<div class="proom">
+      <div class="prhead"><span class="prname">${n}</span><span class="prcap">${occ.length}/${KAPASITAS_KAMAR}</span></div>
+      ${rows}${empty}
+    </div>`;
+  }).join("") + `</div>`;
+}
+
+async function loadKamar(){
+  if(SHEET_ID.startsWith("GANTI")) return;
+  const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_KAMAR)}`;
+  try{
+    const res=await fetch(url); if(!res.ok) throw new Error(res.status);
+    const rows=parseCSV(await res.text()); if(rows.length<1) throw new Error("kosong");
+    const header=rows[0];
+    const roomCols=[]; header.forEach((h,i)=>{ if(h && h.trim()) roomCols.push({i, name:h.trim()}); });
+    if(!roomCols.length) throw new Error("baris judul kamar tidak ditemukan");
+    const rooms={}; roomCols.forEach(rc=>rooms[rc.name]=[]);
+    for(let r=1;r<rows.length;r++){
+      roomCols.forEach(rc=>{
+        const v=(rows[r][rc.i]||"").trim();
+        if(v) rooms[rc.name].push(v);
+      });
+    }
+    dataKamar=rooms;
+    buildPrintArea(rooms);
+    if(currentView==="kmr") renderKamar(rooms);
+  }catch(e){
+    document.getElementById("kmTrack").innerHTML=`<div class="msg err">Gagal memuat KamarMahad (${e.message}).<br>Cek nama tab & baris judul kamar.</div>`;
+  }
+}
+
+/* ---- cetak kamar (A4 / PDF) ---- */
+document.getElementById("printKamarBtn").addEventListener("click",()=>{
+  document.getElementById("printDate").textContent =
+    NOW.toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"});
+  window.print();
+});
+
 /* ---- tab switching ---- */
 function showView(v){
   currentView=v;
   document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.dataset.view===v));
   document.getElementById("viewMahasiswa").classList.toggle("active",v==="mhs");
   document.getElementById("viewKerjasama").classList.toggle("active",v==="krj");
+  document.getElementById("viewKamar").classList.toggle("active",v==="kmr");
   document.getElementById("subline").textContent = v==="mhs"
     ? "Monitoring mahasiswa asing & masa berlaku dokumen keimigrasian — Paspor · ITAS · STM · SKTT"
-    : "Monitoring kerjasama & masa berlaku dokumen kemitraan — MoU · MoA · LoI";
-  if(v==="mhs") renderMhs(dataMhs); else renderKrj(dataKrj);
+    : v==="krj"
+    ? "Monitoring kerjasama & masa berlaku dokumen kemitraan — MoU · MoA · LoI"
+    : "Pembagian kamar mahad mahasiswa internasional";
+  if(v==="mhs") renderMhs(dataMhs);
+  else if(v==="krj") renderKrj(dataKrj);
+  else renderKamar(dataKamar);
 }
 document.querySelectorAll(".tab").forEach(t=>t.addEventListener("click",()=>showView(t.dataset.view)));
 
@@ -528,8 +783,8 @@ function tick(){
   document.getElementById("today").textContent=d.toLocaleDateString("id-ID",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
 }
 addEventListener("resize",fit); fit(); tick(); setInterval(tick,1000);
-loadMhs(); loadKrj();
-setInterval(()=>{ loadMhs(); loadKrj(); }, REFRESH_MINUTES*60000);
+loadMhs(); loadKrj(); loadAgenda(); loadKamar();
+setInterval(()=>{ loadMhs(); loadKrj(); loadAgenda(); loadKamar(); }, REFRESH_MINUTES*60000);
 </script>
 </body>
 </html>
