@@ -101,18 +101,19 @@
   /* ---- kamar mahad: grid kartu kamar ---- */
   .kmstats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:18px;flex:none}
   .kmcard{flex:1;min-height:0}
-  .kmgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;align-content:start}
-  .room{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 18px;
-    box-shadow:0 6px 18px rgba(15,40,32,.06);transition:background-color .3s,border-color .3s}
-  .room .rhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-  .room .rname{font-size:19px;font-weight:800;letter-spacing:-.01em}
-  .room .rcap{font-size:13px;font-weight:700;padding:3px 10px;border-radius:20px;background:var(--brand-soft);color:var(--brand)}
+  .kmgrid{height:100%;display:grid;grid-template-columns:repeat(5,1fr);grid-auto-rows:1fr;gap:14px}
+  .room{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:13px 15px;
+    box-shadow:0 6px 18px rgba(15,40,32,.06);transition:background-color .3s,border-color .3s;
+    display:flex;flex-direction:column;min-height:0}
+  .room .rhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;flex:none}
+  .room .rname{font-size:17px;font-weight:800;letter-spacing:-.01em}
+  .room .rcap{font-size:12px;font-weight:700;padding:3px 9px;border-radius:20px;background:var(--brand-soft);color:var(--brand)}
   .room .rcap.full{background:var(--band);color:var(--muted)}
   .room .rcap.over{background:var(--danger-bg);color:var(--danger)}
-  .room .rlist{display:flex;flex-direction:column;gap:7px}
-  .room .rperson{display:flex;align-items:center;gap:9px;font-size:16px;font-weight:600}
-  .room .rperson .rno{width:20px;font-size:13px;color:var(--muted);font-weight:700}
-  .room .rempty{font-size:14px;color:var(--muted);font-style:italic;padding:4px 0}
+  .room .rlist{display:flex;flex-direction:column;justify-content:center;gap:7px;flex:1;min-height:0}
+  .room .rperson{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600}
+  .room .rperson .rno{width:18px;font-size:12px;color:var(--muted);font-weight:700}
+  .room .rempty{font-size:13px;color:var(--muted);font-style:italic;padding:2px 0}
 
   .pbtn{margin-left:auto;padding:9px 16px;border-radius:10px;border:1px solid var(--line);
     background:var(--surface);color:var(--ink);font-size:14px;font-weight:700;cursor:pointer;transition:.2s}
@@ -155,6 +156,7 @@
   /* scroll viewport + moving track (marquee) */
   .scroll{overflow:hidden;flex:1;min-height:0;position:relative}
   .track{will-change:transform}
+  #kmTrack{height:100%}
 
   /* list */
   .lhead,.lrow{display:grid;grid-template-columns:2.4fr 1.5fr 2.2fr .7fr;gap:12px;align-items:center}
@@ -687,8 +689,7 @@ function renderKamar(rooms){
   document.getElementById("kmTrack").innerHTML = names.length
     ? `<div class="kmgrid">`+names.map(n=>roomCardHTML(n,rooms[n])).join("")+`</div>`
     : `<div class="msg">Belum ada data kamar.</div>`;
-
-  marquee(document.getElementById("kmTrack"),10);
+  /* tidak dibuat marquee — seluruh kamar harus muat dalam satu layar */
 }
 
 /* HTML cetak A4 — dibangun terpisah dari kmTrack agar tidak ikut
