@@ -128,20 +128,21 @@
     #printRoot{display:block !important}
     @page{ size:A4 portrait; margin:14mm; }
 
-    #printRoot{color:#111;font-family:'Plus Jakarta Sans',system-ui,sans-serif}
-    .p-head{margin-bottom:14mm;border-bottom:2px solid #0F5F52;padding-bottom:8mm}
-    .p-head h1{font-size:20pt;font-weight:800;color:#0F5F52}
-    .p-head .p-sub{font-size:10pt;color:#555;margin-top:3mm}
+    #printRoot{color:#111;font-family:'Plus Jakarta Sans',system-ui,sans-serif;height:269mm;display:flex;flex-direction:column}
+    .p-head{margin-bottom:8mm;border-bottom:1.5pt solid #0F5F52;padding-bottom:4mm;flex:none}
+    .p-head h1{font-size:16pt;font-weight:800;color:#0F5F52}
+    .p-head .p-sub{font-size:9pt;color:#555;margin-top:1.5mm}
 
-    #kmPrintArea .pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6mm}
-    #kmPrintArea .proom{border:1.2pt solid #0F5F52;border-radius:3mm;padding:4mm 5mm;break-inside:avoid;page-break-inside:avoid}
+    #kmPrintArea{flex:1;min-height:0}
+    #kmPrintArea .pgrid{height:100%;display:grid;grid-template-columns:repeat(5,1fr);grid-auto-rows:1fr;gap:5mm}
+    #kmPrintArea .proom{border:1pt solid #0F5F52;border-radius:2.5mm;padding:3mm 4mm;break-inside:avoid;
+      page-break-inside:avoid;display:flex;flex-direction:column}
     #kmPrintArea .prhead{display:flex;justify-content:space-between;align-items:center;
-      border-bottom:1pt solid #ccc;padding-bottom:2mm;margin-bottom:3mm}
-    #kmPrintArea .prname{font-size:12.5pt;font-weight:800;color:#0F5F52}
-    #kmPrintArea .prcap{font-size:9pt;font-weight:700;color:#555}
-    #kmPrintArea .prperson{font-size:11pt;padding:1.6mm 0;border-bottom:0.5pt dotted #ccc}
-    #kmPrintArea .prperson:last-child{border-bottom:none}
-    #kmPrintArea .prempty{font-size:10pt;color:#999;font-style:italic;padding:1.6mm 0}
+      border-bottom:0.75pt solid #ccc;padding-bottom:1.5mm;margin-bottom:2mm;flex:none}
+    #kmPrintArea .prname{font-size:11pt;font-weight:800;color:#0F5F52}
+    #kmPrintArea .prcap{font-size:8pt;font-weight:700;color:#555}
+    #kmPrintArea .prperson{font-size:9.5pt;padding:1mm 0}
+    #kmPrintArea .prempty{font-size:8.5pt;color:#999;font-style:italic;padding:1mm 0}
   }
 
   .grid{flex:1;display:grid;grid-template-columns:1.35fr .85fr .85fr;grid-template-rows:240px 1fr;
