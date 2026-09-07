@@ -38,6 +38,9 @@
     color:var(--ink);font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;
     box-shadow:0 4px 12px rgba(15,40,32,.06);transition:background-color .3s,border-color .3s}
   .tbtn:hover{border-color:var(--brand)}
+  .tbtn:disabled{opacity:.5;cursor:not-allowed}
+  .tbtn.test-email{background:var(--warn-bg);border-color:var(--warn);color:var(--warn)}
+  .tbtn.test-email:hover{border-color:var(--warn);opacity:.8}
 
   /* ---- tabs ---- */
   .tabs{display:flex;gap:10px;margin-bottom:18px;flex:none}
@@ -216,6 +219,7 @@
       </div>
       <div class="topright">
         <div class="clock"><b id="clock">–</b><span id="today">–</span></div>
+        <button id="testEmailBtn" class="tbtn test-email" title="Kirim test email reminder dokumen">📧</button>
         <a href="surat.html" class="tbtn" title="Buka Generator Surat" style="text-decoration:none;font-size:22px">📄</a>
         <button id="themeBtn" class="tbtn" title="Ganti tema terang/gelap">🌙</button>
       </div>
@@ -788,6 +792,39 @@ function tick(){
 addEventListener("resize",fit); fit(); tick(); setInterval(tick,1000);
 loadMhs(); loadKrj(); loadAgenda(); loadKamar();
 setInterval(()=>{ loadMhs(); loadKrj(); loadAgenda(); loadKamar(); }, REFRESH_MINUTES*60000);
+
+/* ---- TEST EMAIL REMINDER ---- */
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby6ZfAbR4u-ILfI28vrSQAuCgV6tJEUqD68UPQAg4j0zeAJCAV2BHoACL67uwqgIdH2/usercontent";
+document.getElementById("testEmailBtn").addEventListener("click", async () => {
+  const btn = document.getElementById("testEmailBtn");
+  const originalText = btn.textContent;
+  btn.textContent = "⏳";
+  btn.disabled = true;
+  
+  try {
+    const res = await fetch(WEB_APP_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({ action: "testEmail" })
+    });
+    
+    btn.textContent = "✅";
+    setTimeout(() => {
+      btn.textContent = originalText;
+      btn.disabled = false;
+    }, 2000);
+    
+    alert("✅ Email test dikirim ke semua staff yang aktif!");
+  } catch (err) {
+    btn.textContent = "❌";
+    setTimeout(() => {
+      btn.textContent = originalText;
+      btn.disabled = false;
+    }, 2000);
+    alert("❌ Gagal mengirim: " + err.message);
+  }
+});
 </script>
 </body>
 </html>
