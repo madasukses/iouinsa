@@ -146,6 +146,24 @@
     #kmPrintArea .prcap{font-size:8pt;font-weight:700;color:#555}
     #kmPrintArea .prperson{font-size:9.5pt;padding:1mm 0}
     #kmPrintArea .prempty{font-size:8.5pt;color:#999;font-style:italic;padding:1mm 0}
+
+    /* ---- cetak notifikasi dokumen (SKTT/ITAS/STM/Paspor) — bebas multi-halaman ---- */
+    #printRoot.docsMode{height:auto;display:block}
+    #docsPrintArea .pdoc-group{margin-bottom:7mm}
+    #docsPrintArea .pdoc-group:last-child{margin-bottom:0}
+    #docsPrintArea .pdoc-title{font-size:12.5pt;font-weight:800;color:#0F5F52;border-bottom:1.25pt solid #0F5F52;
+      padding-bottom:2mm;margin-bottom:3mm;display:flex;align-items:baseline;gap:7px}
+    #docsPrintArea .pdoc-count{font-size:9pt;font-weight:600;color:#777}
+    #docsPrintArea .pditem{display:grid;grid-template-columns:8mm 1fr auto;gap:4mm;padding:2.2mm 0;
+      border-bottom:0.6pt solid #eee;font-size:9.5pt;align-items:baseline;break-inside:avoid;page-break-inside:avoid}
+    #docsPrintArea .pdno{font-weight:700;color:#0F5F52}
+    #docsPrintArea .pdinfo{display:flex;flex-direction:column;gap:0.5mm}
+    #docsPrintArea .pdn{font-weight:700;color:#111}
+    #docsPrintArea .pdm{font-size:8.3pt;color:#777}
+    #docsPrintArea .pdd{font-weight:700;text-align:right;white-space:nowrap;font-size:9pt}
+    #docsPrintArea .pdd.danger{color:#c0392b}
+    #docsPrintArea .pdd.warn{color:#a86a00}
+    #docsPrintArea .pdempty{font-size:10pt;color:#777;font-style:italic}
   }
 
   .grid{flex:1;display:grid;grid-template-columns:1.35fr .85fr .85fr;grid-template-rows:240px 1fr;
@@ -263,6 +281,7 @@
             <span><i style="background:var(--danger)"></i>Kedaluwarsa / ≤30 hari</span>
             <span><i style="background:var(--warn)"></i>≤90 hari</span>
           </div>
+          <button id="printDocsBtn" class="pbtn">🖨️ Cetak / PDF</button>
         </div>
         <div class="scroll"><div class="track" id="docsTrack"></div></div>
       </section>
@@ -304,10 +323,11 @@
 
   <div id="printRoot">
     <div class="p-head">
-      <h1>Pembagian Kamar Mahad</h1>
+      <h1 id="printTitle">Pembagian Kamar Mahad</h1>
       <div class="p-sub">International Office UINSA · dicetak <span id="printDate"></span></div>
     </div>
     <div id="kmPrintArea"></div>
+    <div id="docsPrintArea" style="display:none"></div>
   </div>
 
   <div id="popupOverlay">
@@ -743,8 +763,57 @@ async function loadKamar(){
 
 /* ---- cetak kamar (A4 / PDF) ---- */
 document.getElementById("printKamarBtn").addEventListener("click",()=>{
+  document.getElementById("printTitle").textContent = "Pembagian Kamar Mahad";
   document.getElementById("printDate").textContent =
     NOW.toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"});
+  document.getElementById("printRoot").classList.remove("docsMode");
+  document.getElementById("kmPrintArea").style.display = "";
+  document.getElementById("docsPrintArea").style.display = "none";
+  window.print();
+});
+
+/* ---- cetak notifikasi dokumen (SKTT/ITAS/STM/Paspor) — A4 / PDF ---- */
+function buildDocsPrintArea(list){
+  const DOC_LABELS = {sktt:"SKTT",itas:"ITAS",stm:"STM / SKJ",paspor:"PASPOR"};
+  const ORDER = ["sktt","itas","stm","paspor"];
+  const groups = {sktt:[],itas:[],stm:[],paspor:[]};
+  list.forEach(s=>{
+    docFlags(s).forEach(x=>{
+      const key = x.label.toLowerCase()==="stm" ? "stm" : x.label.toLowerCase();
+      if(groups[key]) groups[key].push({s,x});
+    });
+  });
+  ORDER.forEach(k=> groups[k].sort((a,b)=>a.x.days-b.x.days));
+
+  const sections = ORDER.filter(k=>groups[k].length).map(k=>{
+    const arr = groups[k];
+    const rows = arr.map(({s,x},i)=>{
+      const due = x.days<0 ? "Kedaluwarsa "+Math.abs(x.days)+" hari lalu"
+                : x.days===0 ? "Jatuh tempo hari ini"
+                : "Kurang "+x.days+" hari";
+      return `<div class="pditem">
+        <span class="pdno">${i+1}.</span>
+        <div class="pdinfo"><span class="pdn">${s.nama}</span><span class="pdm">${s.negara||"-"} · ${s.prodi||"-"} · Smt ${s.semester||"–"}</span></div>
+        <span class="pdd ${x.level}">${due}</span>
+      </div>`;
+    }).join("");
+    return `<div class="pdoc-group">
+      <div class="pdoc-title">${DOC_LABELS[k]} <span class="pdoc-count">(${arr.length} mahasiswa)</span></div>
+      ${rows}
+    </div>`;
+  }).join("");
+
+  return sections || `<div class="pdempty">Semua dokumen dalam masa aman. 🎉</div>`;
+}
+
+document.getElementById("printDocsBtn").addEventListener("click",()=>{
+  document.getElementById("printTitle").textContent = "Dokumen Perlu Diperpanjang";
+  document.getElementById("printDate").textContent =
+    NOW.toLocaleDateString("id-ID",{day:"numeric",month:"long",year:"numeric"});
+  document.getElementById("docsPrintArea").innerHTML = buildDocsPrintArea(dataMhs);
+  document.getElementById("printRoot").classList.add("docsMode");
+  document.getElementById("kmPrintArea").style.display = "none";
+  document.getElementById("docsPrintArea").style.display = "block";
   window.print();
 });
 
