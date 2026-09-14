@@ -21106,7 +21106,6 @@ function letter7(d){
 }
 
 function letter8(d){
-  const prefix = (d.nomorprefix || "Pt")+"-";
   return `<div class="sheet compact">
     ${kop()}
     <div style="display:grid;grid-template-columns:1fr auto;gap:2mm;margin-bottom:3mm;font-size:12px">
@@ -21114,7 +21113,7 @@ function letter8(d){
         <div style="display:flex; gap:3px; margin-bottom:1px">
           <div style="min-width:55px">Nomor</div>
           <div>:</div>
-          <div style="flex:1">${esc(prefix)}${esc(d.nomorurut||"")}/Un.07/01/R3/HM.01/08/2025</div>
+          <div style="flex:1">${esc(d.nomorsuratview)}</div>
         </div>
         <div style="display:flex; gap:3px; margin-bottom:1px">
           <div style="min-width:55px">Lampiran</div>
@@ -21160,7 +21159,6 @@ function letter8(d){
 }
 
 function letter9(d){
-  const prefix = (d.nomorprefix || "Pt")+"-";
   return `<div class="sheet compact">
     ${kop()}
     <div style="display:grid;grid-template-columns:1fr auto;gap:2mm;margin-bottom:3mm;font-size:12px">
@@ -21168,7 +21166,7 @@ function letter9(d){
         <div style="display:flex; gap:3px">
           <div style="min-width:55px">Nomor</div>
           <div>:</div>
-          <div style="flex:1">${esc(prefix)}${esc(d.nomorurut||"")}/Un.07/01/R3/PP.00.9/06/2025</div>
+          <div style="flex:1">${esc(d.nomorsuratview)}</div>
         </div>
       </div>
       <div style="text-align:right">
@@ -21206,11 +21204,10 @@ function letter9(d){
 }
 
 function letter10(d){
-  const prefix = (d.nomorprefix || "Pt")+"-";
   return `<div class="sheet compact">
     ${kop()}
     <div class="doctitle">SURAT PERNYATAAN PENJAMINAN</div>
-    <div class="docnum">${esc(prefix)}${esc(d.nomorurut||"")}/Un.07/01/R3/PP.00.9/06/2025</div>
+    <div class="docnum">${esc(d.nomorsuratview)}</div>
     <div class="p" style="margin-bottom:2mm">Yang bertandatangan dibawah ini:</div>
     ${kv("Nama",d.namawarek)}
     ${kv("Tempat/Tanggal Lahir",d.tempatlahirwarek+" / "+d.ttlwarek)}
@@ -21667,9 +21664,10 @@ function collect(){
   // Hasilnya langsung isi ke "Nomor Surat lengkap (bisa di-edit)" → nomorsuratview
   // Dari nomorsuratview langsung update ke semua dokumen
   const viewEl = document.getElementById("nomorsuratview");
-  d.nomorsuratview = viewEl ? viewEl.value : "";
-  d.nomorsurat = d.nomorsuratview;
-  d.nomorepo = d.nomorsuratview;
+  d.nomorsuratview = viewEl ? viewEl.value.trim() : "";
+  // SYNC PENUH: gunakan nomorsuratview di SEMUA template (Polda, Kemenag, etc)
+  d.nomorsurat = d.nomorsuratview || "";
+  d.nomorepo = d.nomorsuratview || "";
   
   // Format durasi lengkap untuk "Hal" surat 3
   d.durasiformat = formatDurasi(d.durasivis);
@@ -21715,6 +21713,17 @@ function render(){
   document.getElementById("sheets").innerHTML=html;
   validateFields(); // Highlight empty fields
   applyZoom();
+  
+  // Re-apply category filter setelah HTML baru di-render
+  const categoryFilter = document.getElementById("categoryFilter");
+  if(categoryFilter) {
+    const category = categoryFilter.value || "all";
+    const allowed = categoryMap[category] || [];
+    document.querySelectorAll(".sheetCard").forEach(card=>{
+      const cardN = parseInt(card.dataset.n);
+      card.style.display = allowed.includes(cardN) ? "" : "none";
+    });
+  }
 }
 
 IDS.forEach(id=>{
@@ -22136,9 +22145,8 @@ async function buildDocxBlob(d, include){
   }
 
   function letter8(d) {
-    const prefix = (d.nomorprefix || "Pt")+"-";
     return [
-      p([run("Nomor"), run(": "), run(prefix), run(d.nomorurut||""), run("/Un.07/01/R3/HM.01/08/2025")], {spacing:{after:80}}),
+      p([run("Nomor"), run(": "), run(d.nomorsuratview)], {spacing:{after:80}}),
       p([run("Lampiran"), run(": -")], {spacing:{after:80}}),
       p([run("Perihal"), run(": Permohonan SKJ/STM")], {spacing:{after:300}}),
       p(run("Surabaya, "+d.tanggal), {alignment:AlignmentType.RIGHT, spacing:{after:300}}),
@@ -22158,9 +22166,8 @@ async function buildDocxBlob(d, include){
   }
 
   function letter9(d) {
-    const prefix = (d.nomorprefix || "Pt")+"-";
     return [
-      p([run("Nomor"), run(": "), run(prefix), run(d.nomorurut||""), run("/Un.07/01/R3/PP.00.9/06/2025")], {spacing:{after:200}}),
+      p([run("Nomor"), run(": "), run(d.nomorsuratview)], {spacing:{after:200}}),
       p(run("Surabaya, "+d.tanggal), {alignment:AlignmentType.RIGHT, spacing:{after:300}}),
       p(run("Kepada Yth,"), {spacing:{after:100}}),
       p(run("Kepala KANTOR IMIGRASI KELAS I KHUSUS TPI JUANDA"), {spacing:{after:80}}),
@@ -22181,10 +22188,9 @@ async function buildDocxBlob(d, include){
   }
 
   function letter10(d) {
-    const prefix = (d.nomorprefix || "Pt")+"-";
     return [
       p(run("SURAT PERNYATAAN PENJAMINAN",{bold:true,underline:{}}), {alignment:AlignmentType.CENTER, spacing:{after:80}}),
-      p(run(prefix+d.nomorurut+"/Un.07/01/R3/PP.00.9/06/2025"), {alignment:AlignmentType.CENTER, spacing:{after:300}}),
+      p(run(d.nomorsuratview), {alignment:AlignmentType.CENTER, spacing:{after:300}}),
       p(run("Yang bertandatangan dibawah ini:"), {spacing:{after:200}}),
       ...kvBlock([["Nama",d.namawarek],["Tempat/Tanggal Lahir",d.tempatlahirwarek+" / "+d.ttlwarek],["Pekerjaan",d.jabatan],["Kewarganegaraan","Indonesia"],["K.T.P",d.ktpwarek],["Alamat",d.alamatwarek]]),
       p([run("Yang selanjutnya menyatakan sebagai penjamin/ penanggung jawab, dengan hormat mengajukan "),
