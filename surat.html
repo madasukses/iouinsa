@@ -20159,8 +20159,8 @@ var __async = (__this, __arguments, generator) => {
   /* ---- pencarian data mahasiswa dari Sheety API ---- */
   .searchWrap{position:relative;width:100%}
   .searchResults{position:absolute;left:0;right:0;top:calc(100% + 4px);background:#fff;border:1px solid var(--line);
-    border-radius:10px;max-height:280px;overflow-y:auto;z-index:25;box-shadow:0 4px 12px rgba(15,40,32,.12);
-    display:none;border-top:2px solid var(--brand)}
+    border-radius:10px;max-height:320px;overflow-y:auto;z-index:25;box-shadow:0 4px 12px rgba(15,40,32,.12);
+    display:none;border-top:3px solid var(--brand)}
   .searchResults.show{display:block;animation:slideDown .2s ease-out}
   @keyframes slideDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
   .searchResults .item{padding:11px 14px;cursor:pointer;font-size:13.5px;border-bottom:1px solid #f0f0f0;
@@ -20170,8 +20170,14 @@ var __async = (__this, __arguments, generator) => {
   .searchResults .item b{display:block;font-weight:700;color:var(--ink);margin-bottom:2px}
   .searchResults .item small{color:var(--muted);font-size:12px}
   .searchStatus{font-size:12px;color:var(--brand);margin-top:6px;font-weight:500}
+  #searchToggleBtn:hover{background:var(--brand-soft);color:var(--brand);border-color:var(--brand)}
+  #searchToggleBtn:active{transform:scale(0.95)}
   .field input:focus,.field textarea:focus{outline:2px solid var(--brand);outline-offset:1px;border-color:transparent}
   .field textarea{resize:vertical;min-height:52px}
+  /* Field validation - red border jika kosong */
+  .field.field-empty input,.field.field-empty select,.field.field-empty textarea{
+    border-color:#ef4444;background:#fff5f5
+  }
   .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
   details{border:1px solid var(--line);border-radius:10px;padding:0 12px;margin-top:6px;background:#fafbfa}
   details summary{cursor:pointer;padding:10px 0;font-size:13px;font-weight:700;color:var(--brand)}
@@ -20310,8 +20316,8 @@ var __async = (__this, __arguments, generator) => {
       <div class="row2">
         <div class="field"><label>Prefix Nomor Surat</label>
           <select id="nomorprefix">
-            <option value="Pt">Pt- (Penting)</option>
-            <option value="B">B- (Biasa)</option>
+            <option value="Pt">Pt - penting</option>
+            <option value="B">B - biasa</option>
           </select>
         </div>
         <div class="field"><label>Nomor Urut Surat</label><input id="nomorurut" value="1992"></div>
@@ -20325,7 +20331,10 @@ var __async = (__this, __arguments, generator) => {
       <h2>Data Mahasiswa</h2>
       <div class="field searchWrap">
         <label>Cari dari Data Spreadsheet (ketik nama)</label>
-        <input id="searchMhs" placeholder="Ketik nama mahasiswa...">
+        <div style="display:flex;gap:6px;align-items:center">
+          <input id="searchMhs" placeholder="Ketik nama mahasiswa..." style="flex:1">
+          <button id="searchToggleBtn" style="padding:9px 11px;background:var(--line);color:var(--muted);border:1px solid var(--line);border-radius:9px;cursor:pointer;font-size:16px;transition:all .2s;display:flex;align-items:center;justify-content:center;width:36px;height:36px">▼</button>
+        </div>
         <div class="searchResults" id="searchResults"></div>
         <div class="searchStatus" id="searchStatus">Memuat daftar mahasiswa…</div>
       </div>
@@ -21334,17 +21343,16 @@ function academicYear(dateStr){
   return (m>=7) ? (y+"/"+(y+1)) : ((y-1)+"/"+y);
 }
 function autoUpdateNomorSurat(){
+  // Auto-generate dan ISI ke nomorsuratview setiap kali Pt/B atau Nomor Urut berubah
   const prefix = (document.getElementById("nomorprefix").value || "Pt")+"-";
   const nomorurut = document.getElementById("nomorurut").value || "1";
   const dateStr = document.getElementById("tanggaldate").value || new Date().toISOString().slice(0,10);
   const [yy,mm] = dateStr.split("-");
   const generated = prefix+nomorurut+"/Un.07/01/R3/PP.00.9/"+mm+"/"+yy;
+  
   const viewEl = document.getElementById("nomorsuratview");
-  // Update field dengan nomor generated (tapi jangan overwrite jika user sudah edit)
-  // Caranya: update hanya jika field kosong atau masih berisi nomor lama
-  if(viewEl && (!viewEl.value || viewEl.dataset.lastGenerated === viewEl.value)){
-    viewEl.value = generated;
-    viewEl.dataset.lastGenerated = generated; // track nomor terakhir yang di-generate
+  if(viewEl){
+    viewEl.value = generated; // LANGSUNG overwrite, jangan track lastGenerated
   }
 }
 
@@ -21354,7 +21362,9 @@ function collect(){
   const [yy,mm] = dateStr.split("-");
   d.tanggal = formatIndoDate(dateStr);
   
-  // Nomor surat sudah di-update otomatis oleh autoUpdateNomorSurat()
+  // Nomor surat auto-generate dari Pt/B + Nomor Urut + Tanggal
+  // Hasilnya langsung isi ke "Nomor Surat lengkap (bisa di-edit)" → nomorsuratview
+  // Dari nomorsuratview langsung update ke semua dokumen
   const viewEl = document.getElementById("nomorsuratview");
   d.nomorsuratview = viewEl ? viewEl.value : "";
   d.nomorsurat = d.nomorsuratview;
@@ -21367,6 +21377,22 @@ function collect(){
 }
 
 const LETTER_TITLES = ["Surat Pernyataan","Surat Keterangan","Surat Permohonan VTT","Pernyataan & Jaminan VTT","Surat Permohonan EPO","Pernyataan & Jaminan EPO","Surat Permohonan Perpanjangan ITT","Permohonan SKJ/STM (POLDA)","Permohonan Perubahan Data Passport","Pernyataan Penjaminan Perubahan Passport","Permohonan Mutasi Alamat","Pernyataan Penjaminan Mutasi Alamat"];
+
+/* ---- VALIDATION: Highlight empty required fields ---- */
+const REQUIRED_FIELDS = ["namamhs","nimmhs","tempatlahir","tanggallahir","kewarganegaraan"];
+function validateFields(){
+  // Clear semua field-empty class dulu
+  document.querySelectorAll(".field").forEach(f => f.classList.remove("field-empty"));
+  
+  // Cek field required
+  REQUIRED_FIELDS.forEach(id => {
+    const el = document.getElementById(id);
+    if(el && !el.value.trim()){
+      const fieldWrapper = el.closest(".field");
+      if(fieldWrapper) fieldWrapper.classList.add("field-empty");
+    }
+  });
+}
 
 function render(){
   const d=collect();
@@ -21383,6 +21409,7 @@ function render(){
     </div>`;
   }).join("");
   document.getElementById("sheets").innerHTML=html;
+  validateFields(); // Highlight empty fields
   applyZoom();
 }
 
@@ -21470,10 +21497,10 @@ async function renderSheetToCanvas(sheetHtml){
   return canvas;
 }
 
-const LETTER_BUILDERS = [null, letter1, letter2, letter3, letter4, letter5, letter6];
+const LETTER_BUILDERS = [null, letter1, letter2, letter3, letter4, letter5, letter6, letter7, letter8, letter9, letter10, letter11, letter12];
 
 async function buildPdfBlob(d, include){
-  include = include || [1,2,3,4,5,6];
+  include = include || [1,2,3,4,5,6,7,8,9,10,11,12];
   const { w:pw, h:ph } = PAGE_SIZES[currentPaper];
   const { jsPDF } = window.jspdf;
   const pdf = new jsPDF({unit:"mm", format:[pw,ph], orientation:"portrait"});
@@ -21495,7 +21522,7 @@ async function downloadPdfAll(){
   btn.textContent = "Membuat PDF…"; btn.disabled = true;
   try{
     const d = collect();
-    const blob = await buildPdfBlob(d, [1,2,3,4,5,6]);
+    const blob = await buildPdfBlob(d, [1,2,3,4,5,6,7,8,9,10,11,12]);
     const nama = (d.namamhs||"mahasiswa").replace(/\s+/g,"_");
     saveBlob(blob, `Surat_4_${nama}.pdf`);
   }catch(e){
@@ -22052,7 +22079,7 @@ function renderSearchResults(list){
       if(m.itasmasaberlaku) document.getElementById("itasmasaberlaku").value = formatTanggalLahir(m.itasmasaberlaku);
       if(m.fakultas) document.getElementById("fakultas").value = m.fakultas;
       if(m.prodi) document.getElementById("prodi").value = m.prodi;
-      document.getElementById("searchMhs").value = m.nama;
+      document.getElementById("searchMhs").value = "";  // Clear search input setelah dipilih
       selectedTahunMasuk = m.tahunMasuk || "";
       updateSemesterField();
       box.classList.remove("show");
@@ -22061,14 +22088,44 @@ function renderSearchResults(list){
   });
 }
 
-document.getElementById("searchMhs").addEventListener("input", (e)=>{
-  const q = e.target.value.trim().toLowerCase();
-  if(!q){ renderSearchResults([]); return; }
-  renderSearchResults(mhsDirectory.filter(m=>m.nama.toLowerCase().includes(q)));
-});
-document.getElementById("searchMhs").addEventListener("focus", ()=>{
+// Dropdown toggle button
+document.getElementById("searchToggleBtn").addEventListener("click", ()=>{
+  const box = document.getElementById("searchResults");
   const q = document.getElementById("searchMhs").value.trim().toLowerCase();
-  if(q) renderSearchResults(mhsDirectory.filter(m=>m.nama.toLowerCase().includes(q)));
+  
+  if(box.classList.contains("show")){
+    // Close dropdown
+    box.classList.remove("show");
+  } else {
+    // Open dropdown dengan filter sesuai input
+    if(!q){
+      // Jika input kosong, tampilkan semua (sorted abjad)
+      renderSearchResults(mhsDirectory.slice());
+    } else {
+      // Jika ada input, tampilkan hasil filter
+      renderSearchResults(mhsDirectory.filter(m=>m.nama.toLowerCase().includes(q)));
+    }
+  }
+});
+
+// Ketik nama untuk filter hasil (dropdown tetap open jika sudah di-open)
+document.getElementById("searchMhs").addEventListener("input", (e)=>{
+  const box = document.getElementById("searchResults");
+  if(!box.classList.contains("show")) return; // Hanya filter jika dropdown sudah open
+  
+  const q = e.target.value.trim().toLowerCase();
+  if(!q){
+    renderSearchResults(mhsDirectory.slice());
+  } else {
+    renderSearchResults(mhsDirectory.filter(m=>m.nama.toLowerCase().includes(q)));
+  }
+});
+
+// Enter key untuk toggle/search
+document.getElementById("searchMhs").addEventListener("keypress", (e)=>{
+  if(e.key === "Enter"){
+    document.getElementById("searchToggleBtn").click();
+  }
 });
 document.addEventListener("click", (e)=>{
   if(!e.target.closest(".searchWrap")) document.getElementById("searchResults").classList.remove("show");
@@ -22108,12 +22165,8 @@ document.getElementById("pasportbarumasaberlaku").addEventListener("blur", (e)=>
     e.target.value = formatTanggalLahir(e.target.value);
   }
 });
-
-// Tambah event listener di field nomorsuratview: saat user edit, clear flag lastGenerated
-// agar tidak auto-overwrite lagi
-document.getElementById("nomorsuratview").addEventListener("input", (e)=>{
-  e.target.dataset.lastGenerated = null; // clear flag supaya tidak di-overwrite
-});
+// Event listener nomorsuratview: saat user edit, langsung update render()
+document.getElementById("nomorsuratview").addEventListener("input", render);
 
 loadMhsDirectory();
 
