@@ -286,7 +286,7 @@
 
   /* scroll viewport + moving track (marquee) */
   .scroll{overflow-y:auto;flex:1;min-height:0;position:relative}
-  .track{will-change:transform;overflow:hidden}
+  .track{will-change:transform}
   #kmTrack{height:100%}
 
   /* list */
@@ -586,16 +586,14 @@ function marquee(track,speed){
     parent.addEventListener("mouseleave",()=>parent.dataset.paused="");
     
     // Pause on scroll dan auto-resume setelah 3 detik
-    parent.addEventListener("scroll",()=>{
+    const pauseScroll=()=>{
       parent.dataset.paused="1";
       clearTimeout(scrollResumeTimeout);
       scrollResumeTimeout=setTimeout(()=>{
         parent.dataset.paused="";
       },3000);
-    });
-    
-    // Pause on wheel/touchmove untuk proactive pause
-    const pauseScroll=()=>{parent.dataset.paused="1";clearTimeout(scrollResumeTimeout);scrollResumeTimeout=setTimeout(()=>{parent.dataset.paused="";},3000);};
+    };
+    parent.addEventListener("scroll",pauseScroll);
     parent.addEventListener("wheel",pauseScroll,{passive:true});
     parent.addEventListener("touchmove",pauseScroll,{passive:true});
   }
@@ -636,7 +634,7 @@ function renderMhs(list){
   al.sort((a,b)=>a.w-b.w);
   document.getElementById("docsTrack").innerHTML = al.length? al.map(({s,f})=>{
     const chips = f.sort((a,b)=>a.days-b.days).map(x=>{
-      const t = x.days<0 ? "kedaluwarsa" : x.days===0 ? "jatuh tempo hari ini" : "kurang "+x.days+" hari";
+      const t = x.days<0 ? "Kedaluwarsa "+Math.abs(x.days)+" hari lalu" : x.days===0 ? "Jatuh tempo hari ini" : "Kurang "+x.days+" hari";
       return `<span class="chip ${x.level}">${x.label} <small>${t}</small></span>`;
     }).join("");
     return `<div class="drow">
